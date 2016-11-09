@@ -37,4 +37,4 @@ _-Faire une map ?_
 
 ------Non commencé.
 
-Plugin créé par Alexandre1156 (pseudo Minecraft) et Nocturne123 (pseudo Forum).
+*Plugin créé par Alexandre1156 (pseudo Minecraft) et Nocturne123 (pseudo Forum).*

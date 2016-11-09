@@ -36,3 +36,5 @@ _-Faire une map ?_
 ---Stage 5 [Combat contre Cheat-Warden] :
 
 ------Non commencé.
+
+Plugin créé par Alexandre1156 (pseudo Minecraft) et Nocturne123 (pseudo Forum).

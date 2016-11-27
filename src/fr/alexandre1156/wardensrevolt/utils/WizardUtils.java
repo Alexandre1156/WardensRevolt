@@ -5,14 +5,20 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 
-import org.bukkit.craftbukkit.v1_10_R1.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_11_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 
-import fr.alexandre1156.wardensrevolt.Wizard;
+import fr.alexandre1156.wardensrevolt.wizard.Wizard;
+import fr.alexandre1156.wardensrevolt.wizard.WizardElectro;
+import fr.alexandre1156.wardensrevolt.wizard.WizardGelato;
+import fr.alexandre1156.wardensrevolt.wizard.WizardInferno;
+import fr.alexandre1156.wardensrevolt.wizard.WizardOceany;
+import fr.alexandre1156.wardensrevolt.wizard.WizardTerrana;
 
 public class WizardUtils {
 	
 	private static ArrayList<Wizard> wizardList = new ArrayList<>();
+	private static int diamondActive;
 	private static Random r = new Random();
 
 	public static Wizard getWizard(Player p){
@@ -28,7 +34,24 @@ public class WizardUtils {
 	}
 	
 	public static void addWizard(Player p, WizardType wizardType){
-		wizardList.add(new Wizard((CraftPlayer) p, p.getName(), wizardType));
+		switch(wizardType){
+		case ELECTRO:
+			wizardList.add(new WizardElectro((CraftPlayer) p));
+			break;
+		case GELATO:
+			wizardList.add(new WizardGelato((CraftPlayer) p));
+			break;
+		case INFERNO:
+			wizardList.add(new WizardInferno((CraftPlayer) p));
+			break;
+		case OCEANY:
+			wizardList.add(new WizardOceany((CraftPlayer) p));
+			break;
+		case TERRANA:
+			wizardList.add(new WizardTerrana((CraftPlayer) p));
+			break;
+		}
+		//wizardList.add(new Wizard((CraftPlayer) p, p.getName(), wizardType));
 	}
 	
 	public static void removeWizard(Player p){
@@ -47,6 +70,18 @@ public class WizardUtils {
 				return true;
 		}
 		return false;
+	}
+	
+	public static void hasActivedTheDiamond(){
+		diamondActive++;
+	}
+	
+	public static void hasDesactivedTheDiamond(){
+		diamondActive--;
+	}
+	
+	public static int getNumberOfDiamondActived(){
+		return diamondActive;
 	}
 	
 	public static void assignRandomWizardType(Player p){

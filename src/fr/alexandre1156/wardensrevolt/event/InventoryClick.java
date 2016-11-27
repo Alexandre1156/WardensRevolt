@@ -1,6 +1,7 @@
 package fr.alexandre1156.wardensrevolt.event;
 
 import org.bukkit.ChatColor;
+import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -28,7 +29,7 @@ public class InventoryClick implements Listener {
 					WizardUtils.getWizard(p).setWizardType(WizardType.INFERNO);
 				else
 					WizardUtils.addWizard(p, WizardType.INFERNO);
-				p.getInventory().setItem(8, Stuff.INFERNO_KIT_ITEM);
+				p.getInventory().setItem(8, Stuff.itemKitInferno);
 				break;
 
 			case WATER_BUCKET:
@@ -38,7 +39,7 @@ public class InventoryClick implements Listener {
 					WizardUtils.getWizard(p).setWizardType(WizardType.OCEANY);
 				else
 					WizardUtils.addWizard(p, WizardType.OCEANY);
-				p.getInventory().setItem(8, Stuff.OCEANY_KIT_ITEM);
+				p.getInventory().setItem(8, Stuff.itemKitOceany);
 				break;
 
 			case DIRT:
@@ -48,17 +49,17 @@ public class InventoryClick implements Listener {
 					WizardUtils.getWizard(p).setWizardType(WizardType.TERRANA);
 				else
 					WizardUtils.addWizard(p, WizardType.TERRANA);
-				p.getInventory().setItem(8, Stuff.TERRANA_KIT_ITEM);
+				p.getInventory().setItem(8, Stuff.itemKitTerrana);
 				break;
 
 			case NETHER_STAR:
 				p.closeInventory();
-				p.sendMessage(Stuff.PLUGIN_TAG + ChatColor.RED + " Tu as choisi le Mage de du Tonerre !");
+				p.sendMessage(Stuff.PLUGIN_TAG + ChatColor.RED + " Tu as choisi le Mage du Tonerre !");
 				if (WizardUtils.isAWizard(p))
 					WizardUtils.getWizard(p).setWizardType(WizardType.ELECTRO);
 				else
 					WizardUtils.addWizard(p, WizardType.ELECTRO);
-				p.getInventory().setItem(8, Stuff.ELECTRO_KIT_ITEM);
+				p.getInventory().setItem(8, Stuff.itemKitEletro);
 				break;
 
 			case ICE:
@@ -68,7 +69,7 @@ public class InventoryClick implements Listener {
 					WizardUtils.getWizard(p).setWizardType(WizardType.GELATO);
 				else
 					WizardUtils.addWizard(p, WizardType.GELATO);
-				p.getInventory().setItem(8, Stuff.GELATO_KIT_ITEM);
+				p.getInventory().setItem(8, Stuff.itemKitGelato);
 				break;
 			case NAME_TAG:
 				//Ne fait rien, permet juste d'éviter l'erreur
@@ -78,9 +79,9 @@ public class InventoryClick implements Listener {
 				break;
 			}
 			WardenRevolt.getInstance().getScoreboard().updateValue(1, ChatColor.BLUE+"Wizards "+ChatColor.RESET+": "+ChatColor.YELLOW+WizardUtils.getAllWizards().size()+" / 5");
-		} else if(e.getInventory().getType().equals(InventoryType.PLAYER))
+		} else if(e.getInventory().getType().equals(InventoryType.CRAFTING) && !p.getGameMode().equals(GameMode.CREATIVE))
 			e.setCancelled(true);
-		
 	}
 
 }
+

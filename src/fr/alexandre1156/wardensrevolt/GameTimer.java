@@ -41,6 +41,7 @@ public class GameTimer extends Thread{
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
+				secs--;
 				if(secs == 30 || secs == 20 || secs == 10 || secs == 5 || secs == 4 || secs == 3 || secs == 2){
 					Bukkit.broadcastMessage(Stuff.PLUGIN_TAG+ChatColor.YELLOW+" La partie commence dans "+ChatColor.GREEN+secs+ChatColor.YELLOW+" secondes !");
 					Utils.playSoundToAllPlayer(Sound.BLOCK_NOTE_BASS, 1, 0);
@@ -49,7 +50,6 @@ public class GameTimer extends Thread{
 					Bukkit.broadcastMessage(Stuff.PLUGIN_TAG+ChatColor.YELLOW+" La partie commence dans "+ChatColor.GREEN+secs+ChatColor.YELLOW+" seconde !");
 					Utils.playSoundToAllPlayer(Sound.BLOCK_NOTE_BASS, 1, 0);
 				}
-				secs--;
 				if(WizardUtils.getAllWizards().size() == 1){ //5
 					if(secs > 5)
 						secs = 5;

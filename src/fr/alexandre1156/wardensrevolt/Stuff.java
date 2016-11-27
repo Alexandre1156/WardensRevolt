@@ -15,15 +15,26 @@ import org.bukkit.inventory.meta.ItemMeta;
  */
 public class Stuff {
 
-	public static Inventory KITS_INVENTORY;
-	public static ItemStack CHANGE_KIT;
+	public static Inventory inventoryKits;
+	public static ItemStack changeKit;
+	public static ItemStack itemKitInferno;
+	public static ItemStack itemKitOceany;
+	public static ItemStack itemKitTerrana;
+	public static ItemStack itemKitEletro;
+	public static ItemStack itemKitGelato;
 	public static final String PLUGIN_TAG = ChatColor.DARK_AQUA+"[Warden's Revolt]";
 	public static final String WARDEN_TAG = ChatColor.RED+""+ChatColor.BOLD+"[Warden]"+ChatColor.RESET;
-	public static ItemStack INFERNO_KIT_ITEM;
-	public static ItemStack OCEANY_KIT_ITEM;
-	public static ItemStack TERRANA_KIT_ITEM;
-	public static ItemStack ELECTRO_KIT_ITEM;
-	public static ItemStack GELATO_KIT_ITEM;
+	public static final String BLINDING_TAG = /*0ChatColor.BLACK+*/"L'aveuglant";
+	public static final String WIZARD_TAG = ChatColor.DARK_GREEN+"Mages";
+	public static final String KILLER_TAG = ChatColor.RED+"Tueur";
+	public static final String ZOMBIE_TAG = ChatColor.GREEN+"Zombie";
+	public static final String WARDEN_STAGEONE_MESSAGE_ONE = "[\"\",{\"text\":\"[Warden]\",\"color\":\"red\",\"bold\":true},{\"text\":\" Comment vous m'avez trouvé ?! Voici votre récompense : \",\"color\":\"none\",\"bold\":false},{\"text\":\"+1 Aveuglant\",\"color\":\"yellow\",\"bold\":true,\"hoverEvent\":{\"action\":\"show_text\",\"value\":{\"text\":\"\",\"extra\":[{\"text\":\"S'il vous touche, il vous donne de la lenteur 2 et de l'aveuglement 1 tout en vous enlevant 1 cœur de votre vie.\",\"color\":\"green\"}]}}},{\"text\":\" et \",\"color\":\"none\",\"bold\":false},{\"text\":\"+1 Mage\",\"color\":\"yellow\",\"bold\":true,\"hoverEvent\":{\"action\":\"show_text\",\"value\":{\"text\":\"\",\"extra\":[{\"text\":\"Vous expulse 5 blocs plus loin sans vous faire de dégâts.\",\"color\":\"green\"}]}}},{\"text\":\" !\",\"color\":\"none\",\"bold\":false},{\"text\":\" *Warden retourne se cacher*\",\"italic\":true,\"color\":\"none\"}]";
+	public static final String WARDEN_STAGEONE_MESSAGE_TWO = "[\"\",{\"text\":\"[Warden]\",\"color\":\"red\",\"bold\":true},{\"text\":\" Décidément, vous êtes plus tenaces que je ne le pensais ! Voici votre cadeau de votre temps perdu :  \",\"color\":\"none\",\"bold\":false},{\"text\":\"+1 Aveuglant\",\"color\":\"yellow\",\"bold\":true,\"hoverEvent\":{\"action\":\"show_text\",\"value\":{\"text\":\"\",\"extra\":[{\"text\":\"S'il vous touche, il vous donne de la lenteur 2 et de l'aveuglement 1 tout en vous enlevant 1 cœur de votre vie.\",\"color\":\"green\"}]}}},{\"text\":\" et \",\"color\":\"none\",\"bold\":false},{\"text\":\"+1 Mage\",\"color\":\"yellow\",\"bold\":true,\"hoverEvent\":{\"action\":\"show_text\",\"value\":{\"text\":\"\",\"extra\":[{\"text\":\"Vous expulse 5 blocs plus loin sans vous faire de dégâts.\",\"color\":\"green\"}]}}},{\"text\":\" !\",\"color\":\"none\",\"bold\":false},{\"text\":\" *Warden retourne se cacher*\",\"italic\":true,\"color\":\"none\"}]";
+	public static final String WARDEN_STAGEONE_MESSAGE_THREE = "[\"\",{\"text\":\"[Warden]\",\"color\":\"red\",\"bold\":true},{\"text\":\" Pourquoi vous vous acharnez ? Vous ne vallez rien du tout... Voici votre cadeau de consolation :  \",\"color\":\"none\",\"bold\":false},{\"text\":\"+1 Tueur\",\"color\":\"yellow\",\"hoverEvent\":{\"action\":\"show_text\",\"value\":{\"text\":\"\",\"extra\":[{\"text\":\"\",\"color\":\"green\"}]}}},{\"text\":\" et \",\"color\":\"none\"},{\"text\":\"+1 Mage\",\"color\":\"yellow\",\"bold\":true,\"hoverEvent\":{\"action\":\"show_text\",\"value\":{\"text\":\"\",\"extra\":[{\"text\":\"Vous expulse 5 blocs plus loin sans vous faire de dégâts.\",\"color\":\"green\"}]}}},{\"text\":\" !\",\"color\":\"none\",\"bold\":false},{\"text\":\" *Warden retourne se cacher*\",\"italic\":true,\"color\":\"none\"}]";
+	public static final String WARDEN_STAGEONE_MESSAGE_FOUR = "[\"\",{\"text\":\"[Warden]\",\"color\":\"red\",\"bold\":true},{\"text\":\" Mais on en fait qu'à sa tête à ce que je vois ! Allez, c'est Noël avant l'heure :  \",\"color\":\"none\",\"bold\":false},{\"text\":\"+1 Tueur\",\"color\":\"yellow\",\"hoverEvent\":{\"action\":\"show_text\",\"value\":{\"text\":\"\",\"extra\":[{\"text\":\"\",\"color\":\"green\"}]}}},{\"text\":\" et \",\"color\":\"none\"},{\"text\":\"+1 Aveuglant\",\"color\":\"yellow\",\"bold\":true,\"hoverEvent\":{\"action\":\"show_text\",\"value\":{\"text\":\"\",\"extra\":[{\"text\":\"S'il vous touche, il vous donne de la lenteur 2 et de l'aveuglement 1 tout en vous enlevant 1 cœur de votre vie\",\"color\":\"green\"}]}}},{\"text\":\" !\",\"color\":\"none\",\"bold\":false},{\"text\":\" *Warden retourne se cacher*\",\"italic\":true,\"color\":\"none\"}]";
+	public static final String WARDEN_STAGEONE_MESSAGE_FIVE = "[\"\",{\"text\":\"[Warden]\",\"color\":\"red\",\"bold\":true},{\"text\":\"J'en ai marre ! Je vous envoie toute mon armée pour vous détuire : \",\"color\":\"none\",\"bold\":false},{\"text\":\"+1 Tueur\",\"color\":\"yellow\",\"bold\":true,\"hoverEvent\":{\"action\":\"show_text\",\"value\":{\"text\":\"\",\"extra\":[{\"text\":\"\",\"color\":\"green\"}]}}},{\"text\":\" , \",\"color\":\"none\"},{\"text\":\"+1 Aveuglant\",\"color\":\"yellow\",\"bold\":true,\"hoverEvent\":{\"action\":\"show_text\",\"value\":{\"text\":\"\",\"extra\":[{\"text\":\"S'il vous touche, il vous donne de la lenteur 2 et de l'aveuglement 1 tout en vous enlevant 1 cœur de votre vie\",\"color\":\"green\"}]}}},{\"text\":\" et \",\"color\":\"none\",\"bold\":false},{\"text\":\"+40 Zombies\",\"color\":\"yellow\",\"bold\":true,\"hoverEvent\":{\"action\":\"show_text\",\"value\":{\"text\":\"\",\"extra\":[{\"text\":\"Des zombies normaux.\",\"color\":\"blue\"}]}}},{\"text\":\" !\",\"color\":\"none\",\"bold\":false},{\"text\":\" *Warden disparait*\",\"italic\":true,\"color\":\"none\"}]";
+	public static final String WARDEN_STAGEONE_MESSAGE_FINAL = "[\"\",{\"text\":\"[Warden] \",\"color\":\"red\",\"bold\":true},{\"text\":\"A ce que je vois, mon armée de petits monstres n'as pas suffit... Et bien, passons maintenant aux choses sérieuses ! Quelles sont les personnes les plus détestés sur un serveur ? \",\"color\":\"none\",\"bold\":false},{\"text\":\"Les cheateurs ! \",\"color\":\"dark_green\",\"bold\":true}]";
+	public static final String TIP_ONE = " [\"\",{\"text\":\"Tip\",\"color\":\"yellow\",\"bold\":true},{\"text\":\" : Tous les ennemis sont maintenant tuable.\",\"color\":\"gray\",\"bold\":false}]";
 	
 	protected static void init(){
 		createChangeKitItem();
@@ -32,35 +43,35 @@ public class Stuff {
 	}
 	
 	private static void createKitInventory(){
-		KITS_INVENTORY = Bukkit.createInventory(null, InventoryType.HOPPER, ChatColor.GOLD+"Kits");
+		inventoryKits = Bukkit.createInventory(null, InventoryType.HOPPER, ChatColor.GOLD+"Kits");
 		
-		KITS_INVENTORY.addItem(INFERNO_KIT_ITEM);
-		KITS_INVENTORY.addItem(OCEANY_KIT_ITEM);
-		KITS_INVENTORY.addItem(TERRANA_KIT_ITEM);
-		KITS_INVENTORY.addItem(ELECTRO_KIT_ITEM);
-		KITS_INVENTORY.addItem(GELATO_KIT_ITEM);
+		inventoryKits.addItem(itemKitInferno);
+		inventoryKits.addItem(itemKitOceany);
+		inventoryKits.addItem(itemKitTerrana);
+		inventoryKits.addItem(itemKitEletro);
+		inventoryKits.addItem(itemKitGelato);
 	}
 
 	private static void createChangeKitItem(){
-		CHANGE_KIT = new ItemStack(Material.NAME_TAG);
-		ItemMeta meta = CHANGE_KIT.getItemMeta();
+		changeKit = new ItemStack(Material.NAME_TAG);
+		ItemMeta meta = changeKit.getItemMeta();
 		meta.setDisplayName(ChatColor.YELLOW+"Changer de Kit");
 		meta.setLore(Arrays.asList(new String[]{ChatColor.YELLOW+"Clic droit pour changer de kit !"}));
-		CHANGE_KIT.setItemMeta(meta);
+		changeKit.setItemMeta(meta);
 	}
 	
 	private static void createKitItems(){
-		INFERNO_KIT_ITEM = new ItemStack(Material.BLAZE_ROD);
-		OCEANY_KIT_ITEM = new ItemStack(Material.WATER_BUCKET);
-		TERRANA_KIT_ITEM = new ItemStack(Material.DIRT);
-		ELECTRO_KIT_ITEM = new ItemStack(Material.NETHER_STAR);
-		GELATO_KIT_ITEM = new ItemStack(Material.ICE);
+		itemKitInferno = new ItemStack(Material.BLAZE_ROD);
+		itemKitOceany = new ItemStack(Material.WATER_BUCKET);
+		itemKitTerrana = new ItemStack(Material.DIRT);
+		itemKitEletro = new ItemStack(Material.NETHER_STAR);
+		itemKitGelato = new ItemStack(Material.ICE);
 		
-		ItemMeta infernoMeta = INFERNO_KIT_ITEM.getItemMeta();
-		ItemMeta oceanyMeta = INFERNO_KIT_ITEM.getItemMeta();
-		ItemMeta terranaMeta = INFERNO_KIT_ITEM.getItemMeta();
-		ItemMeta electroMeta = INFERNO_KIT_ITEM.getItemMeta();
-		ItemMeta gelatoMeta = INFERNO_KIT_ITEM.getItemMeta();
+		ItemMeta infernoMeta = itemKitInferno.getItemMeta();
+		ItemMeta oceanyMeta = itemKitInferno.getItemMeta();
+		ItemMeta terranaMeta = itemKitInferno.getItemMeta();
+		ItemMeta electroMeta = itemKitInferno.getItemMeta();
+		ItemMeta gelatoMeta = itemKitInferno.getItemMeta();
 		
 		infernoMeta.setDisplayName(ChatColor.RED+"Inferno");
 		oceanyMeta.setDisplayName(ChatColor.DARK_BLUE+"Oceany");
@@ -104,11 +115,11 @@ public class Stuff {
 		ChatColor.DARK_RED+""+ChatColor.BOLD+"Igloo "+ChatColor.RESET+""+ChatColor.WHITE+">"+ChatColor.RESET+
 				""+ChatColor.GREEN+" 25 secs de recharge"}));
 		
-		INFERNO_KIT_ITEM.setItemMeta(infernoMeta);
-		OCEANY_KIT_ITEM.setItemMeta(oceanyMeta);
-		TERRANA_KIT_ITEM.setItemMeta(terranaMeta);
-		ELECTRO_KIT_ITEM.setItemMeta(electroMeta);
-		GELATO_KIT_ITEM.setItemMeta(gelatoMeta);
+		itemKitInferno.setItemMeta(infernoMeta);
+		itemKitOceany.setItemMeta(oceanyMeta);
+		itemKitTerrana.setItemMeta(terranaMeta);
+		itemKitEletro.setItemMeta(electroMeta);
+		itemKitGelato.setItemMeta(gelatoMeta);
 	}
 	
 	

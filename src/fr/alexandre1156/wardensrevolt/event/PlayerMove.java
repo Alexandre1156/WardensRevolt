@@ -14,7 +14,7 @@ public class PlayerMove implements Listener{
 	public void onPlayerMove(PlayerMoveEvent e){
 		Player p = e.getPlayer();
 		if(!WizardUtils.isAWizard(p))
-			p.openInventory(Stuff.KITS_INVENTORY);
+			p.openInventory(Stuff.inventoryKits);
 	}
 	
 }

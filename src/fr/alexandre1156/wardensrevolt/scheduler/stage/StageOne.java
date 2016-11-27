@@ -1,13 +1,11 @@
 package fr.alexandre1156.wardensrevolt.scheduler.stage;
 
-import java.util.Random;
-
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
-import org.bukkit.Particle;
 import org.bukkit.Sound;
-import org.bukkit.craftbukkit.v1_10_R1.entity.CraftPlayer;
+import org.bukkit.entity.ArmorStand;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.Plugin;
@@ -15,15 +13,18 @@ import org.bukkit.scheduler.BukkitTask;
 
 import fr.alexandre1156.wardensrevolt.Stuff;
 import fr.alexandre1156.wardensrevolt.WardenRevolt;
+import fr.alexandre1156.wardensrevolt.config.ConfigList;
 import fr.alexandre1156.wardensrevolt.utils.Utils;
-import net.minecraft.server.v1_10_R1.IChatBaseComponent;
-import net.minecraft.server.v1_10_R1.IChatBaseComponent.ChatSerializer;
-import net.minecraft.server.v1_10_R1.PacketPlayOutChat;
+import net.minecraft.server.v1_11_R1.EnumParticle;
 
 public class StageOne extends Stage implements Listener{
 	
-	private boolean isVisible;
-	private Random rand;
+	private Location spawnLoc;
+	private static ArmorStand wardenPhaseOne;
+	private boolean isNameVisible;
+	private boolean isKilled;
+	private BukkitTask task;
+	//private boolean isActive;
 
 	public StageOne(Plugin plugin) {
 		super(plugin);
@@ -31,36 +32,40 @@ public class StageOne extends Stage implements Listener{
 
 	private int count = 0;
 	
-	public void startStageOne(){
+	public void start(){
+		if(spawnLoc == null)
+			spawnLoc = new Location(ConfigList.world, ConfigList.spawn[0], ConfigList.spawn[1], ConfigList.spawn[2]);
 		for(Player p : Bukkit.getOnlinePlayers()){
-			p.teleport(Bukkit.getWorld("world").getSpawnLocation());
+			p.teleport(spawnLoc);
 			p.playSound(p.getLocation(), Sound.ENTITY_WITHER_SPAWN, 1, 0);
 		}
-		rand = new Random();
 		Bukkit.broadcastMessage(Stuff.WARDEN_TAG+" Alors comme ça on pense pouvoir me vaincre ? Et bien, "+ChatColor.YELLOW+""+ChatColor.BOLD+"trouvez moi avant !");
 		initWardenPhaseOne();
 		stageEngine();
 	}
 	
 	private void stageEngine(){
-		BukkitTask id = Bukkit.getScheduler().runTaskTimer(WardenRevolt.getInstance(), new Runnable(){
+		task = Bukkit.getScheduler().runTaskTimer(WardenRevolt.getInstance(), new Runnable(){
 
 			@Override
 			public void run() {
-				wardenPhaseOne.getWorld().spawnParticle(Particle.SMOKE_LARGE, wardenPhaseOne.getLocation(), 10, 1, 1, 5);
-				
 				for(Player p : Bukkit.getOnlinePlayers()){
-					if(wardenPhaseOne.getLocation().distanceSquared(p.getLocation()) <= 5 * 5){
-						isVisible = true;
-						wardenPhaseOne.setCustomNameVisible(true);
-					} else if(isVisible){
-						isVisible = false;
-						wardenPhaseOne.setCustomNameVisible(false);
-					}
+					if(!isKilled){
+						//wardenPhaseOne.getWorld().spawnParticle(Particle.EXPLOSION_NORMAL, wardenPhaseOne.getLocation(), 1000, 10d, 0.1d, 10d);
+						Utils.spawnParticle(EnumParticle.EXPLOSION_NORMAL, true, wardenPhaseOne.getLocation(), 1f, 1.5f, 1f, 0.0001f, 100, null);
+						if(wardenPhaseOne.getLocation().distanceSquared(p.getLocation()) <= 5 * 5){
+							isNameVisible = true;
+							wardenPhaseOne.setCustomNameVisible(true);
+						} else if(isNameVisible){
+							isNameVisible = false;
+							wardenPhaseOne.setCustomNameVisible(false);
+						}
+					} else
+						updateMobsCountScoreboard();
 				}
 			}
 			
-		}, 0l, 20l);
+		}, 0l, 10l);
 	}
 
 	@Override
@@ -68,28 +73,152 @@ public class StageOne extends Stage implements Listener{
 		count++;
 		switch(count){
 		case 1:
-			String json = "[\"\",{\"text\":\"[Warden]\",\"color\":\"red\",\"bold\":true},{\"text\":\" Comment vous m'avez trouvé ?! Voici votre récompense : \",\"color\":\"none\",\"bold\":false},{\"text\":\"1 Aveuglant\",\"color\":\"yellow\",\"bold\":true,\"hoverEvent\":{\"action\":\"show_text\",\"value\":{\"text\":\"\",\"extra\":[{\"text\":\"S'il vous touche, il vous donne de la lenteur 2 et de l'aveuglement 1 tout en vous enlevant 1 cœur de votre vie.\",\"color\":\"green\"}]}}},{\"text\":\" et \",\"color\":\"none\",\"bold\":false},{\"text\":\"1 mage\",\"color\":\"yellow\",\"bold\":true,\"hoverEvent\":{\"action\":\"show_text\",\"value\":{\"text\":\"\",\"extra\":[{\"text\":\"Vous expulse 5 blocs plus loin sans vous faire de dégâts.\",\"color\":\"green\"}]}}},{\"text\":\" !\",\"color\":\"none\",\"bold\":false},{\"text\":\" *Warden retourne se cacher*\",\"italic\":true,\"color\":\"none\"}]";
-			IChatBaseComponent msg = ChatSerializer.a(json);
-			PacketPlayOutChat packet = new PacketPlayOutChat(msg);
-			for(Player p : Bukkit.getOnlinePlayers())
-				((CraftPlayer) p).getHandle().playerConnection.sendPacket(packet);
-			wardenPhaseOne.teleport(new Location(wardenPhaseOne.getWorld(), wardenPhaseOne.getLocation().getX()+10, 
-					wardenPhaseOne.getLocation().getY(), wardenPhaseOne.getLocation().getZ()+10));
-			int x = rand.nextInt(20);
-			int z = rand.nextInt(20);
-			Utils.spawnTheBlinding(new Location(wardenPhaseOne.getWorld(), wardenPhaseOne.getLocation().getX()+x, wardenPhaseOne.getLocation().getY(), wardenPhaseOne.getLocation().getZ()+z));
-			Utils.spawnTheKiller(new Location(wardenPhaseOne.getWorld(), wardenPhaseOne.getLocation().getX()+x, wardenPhaseOne.getLocation().getY(), wardenPhaseOne.getLocation().getZ()+z));
+			Utils.sendJsonMessageToAllPlayers(Stuff.WARDEN_STAGEONE_MESSAGE_ONE);
+			this.teleportWarden();
+				
+			this.spawnBlinding();
+			this.spawnWizard();
+			
+			this.updateMobsCountScoreboard();
 			break;
 		case 2:
+			Utils.sendJsonMessageToAllPlayers(Stuff.WARDEN_STAGEONE_MESSAGE_TWO);
+			this.teleportWarden();
+	
+			this.spawnBlinding();
+			this.spawnWizard();
+				
+			this.updateMobsCountScoreboard();
 			break;
 		case 3:
+			Utils.sendJsonMessageToAllPlayers(Stuff.WARDEN_STAGEONE_MESSAGE_THREE);
+			this.teleportWarden();
+	
+			this.spawnKiller();
+			this.spawnWizard();
+				
+			this.updateMobsCountScoreboard();
 			break;
 		case 4:
+			Utils.sendJsonMessageToAllPlayers(Stuff.WARDEN_STAGEONE_MESSAGE_FOUR);
+			this.teleportWarden();
+			
+			this.spawnBlinding();
+			this.spawnKiller();
+			 
+			this.updateMobsCountScoreboard();
 			break;
 		case 5:
+			Utils.sendJsonMessageToAllPlayers(Stuff.WARDEN_STAGEONE_MESSAGE_FIVE);
+			
+			this.spawnBlinding();
+			this.spawnKiller();
+			
+	//		if(ConfigList.mobSpawnPosRand){
+	//			for(int i = 0; i < 40; i++)
+	//				Utils.spawnZombie(Utils.getMobRandomLocation());
+	//		} else {
+	//			for(int i = 0; i < 40; i++)
+	//				Utils.spawnZombie(Utils.getMobExistingLocation());
+	//		}
+			Bukkit.getScheduler().runTask(WardenRevolt.getInstance(), new Runnable() {
+				
+				@Override
+				public void run() {
+					updateMobsCountScoreboard();
+					wardenPhaseOne.remove();
+					for(Entity ent : ConfigList.world.getEntities()){
+						Utils.consoleMessage(ent.getName());
+						if(ent.getCustomName() != null){
+							String customName = ent.getCustomName();
+							if(customName.equals(Stuff.ZOMBIE_TAG) || customName.equals(Stuff.BLINDING_TAG) || customName.equals(Stuff.KILLER_TAG) || customName.equals(Stuff.WIZARD_TAG))
+								ent.setInvulnerable(false);
+							Utils.consoleMessage(customName+" "+ent.isInvulnerable());
+						}
+					}
+				}
+			});
+			Utils.sendJsonMessageToAllPlayers(Stuff.TIP_ONE);
+			isKilled = true;
+			WardenRevolt.getInstance().getScoreboard().updateValue(1, ChatColor.YELLOW+"→Tuez tous les monstres !");
 			break;
 		}
 	}
+	
+	private void updateMobsCountScoreboard(){
+		Bukkit.getScheduler().runTaskLater(WardenRevolt.getInstance(), new Runnable() {
+			
+			@Override
+			public void run() {
+				WardenRevolt.getInstance().getScoreboard().updateValue(3, ChatColor.BLACK+"Aveuglants : "+Utils.getBlindingsNumber());
+				WardenRevolt.getInstance().getScoreboard().updateValue(4, ChatColor.DARK_GREEN+"Mages : "+Utils.getWizardsNumber());
+				WardenRevolt.getInstance().getScoreboard().updateValue(5, ChatColor.RED+"Tueurs : "+Utils.getKillersNumber());
+				WardenRevolt.getInstance().getScoreboard().updateValue(6, ChatColor.GREEN+"Zombies : "+Utils.getZombiesNumber());
+			}
+		}, 20L);
+	}
+	
+	private static void initWardenPhaseOne(){
+		Bukkit.getScheduler().runTask(WardenRevolt.getInstance(), new Runnable(){
+
+			@Override
+			public void run() {
+				if(ConfigList.wardenHideRand)
+					wardenPhaseOne = (ArmorStand) world.spawn(Utils.getWardenRandomLocation(), ArmorStand.class);
+				else
+					wardenPhaseOne = (ArmorStand) world.spawn(
+							Utils.getWardenExistingLocation(), 
+							ArmorStand.class);
+				wardenPhaseOne.setInvulnerable(true);
+				wardenPhaseOne.setGravity(false);
+				wardenPhaseOne.setCustomName(ChatColor.RED+"Warden");
+				wardenPhaseOne.setCustomNameVisible(false);
+				//wardenPhaseOne.setVisible(false);
+			}
+		});
+	}
+
+	@Override
+	protected void onAllMonstersDie() {
+		task.cancel();
+		Utils.sendJsonMessageToAllPlayers(Stuff.WARDEN_STAGEONE_MESSAGE_FINAL);
+		WardenRevolt.getInstance().nextStage(WardenStage.STAGE_TWO, this);
+	}
+	
+	private void teleportWarden(){
+		if(ConfigList.wardenHideRand)
+			wardenPhaseOne.teleport(Utils.getWardenRandomLocation());
+		else
+			wardenPhaseOne.teleport(Utils.getWardenExistingLocation());
+	}
+	
+	private void spawnKiller(){
+		if(ConfigList.mobSpawnPosRand)
+			Utils.spawnKiller(Utils.getMobRandomLocation());
+		else 
+			Utils.spawnKiller(Utils.getMobExistingLocation());
+	}
+	
+	private void spawnBlinding(){
+		if(ConfigList.mobSpawnPosRand)
+			Utils.spawnBlinding(Utils.getMobRandomLocation());
+		else 
+			Utils.spawnBlinding(Utils.getMobExistingLocation());
+	}
+	
+	private void spawnWizard(){
+		if(ConfigList.mobSpawnPosRand)
+			Utils.spawnWizard(Utils.getMobRandomLocation());
+		 else 
+			Utils.spawnWizard(Utils.getMobExistingLocation());
+	}
+
+	@Override
+	protected void onAnEntityDie(Entity entityDeath) {
+		//Nothing to do
+	}
+
+	
 	
 	
 	

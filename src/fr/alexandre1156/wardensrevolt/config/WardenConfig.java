@@ -175,7 +175,7 @@ public class WardenConfig {
 	private String getSectionValue(String section){
 		String[] ss = section.split("\\.");
 		//On vérifie si wardenHidePosition 1 x existe dans le config.yml (peut être faux avec 'x')
-		Validate.notNull(getLine(ss[0], true, false));
+		Validate.notNull(getLine(ss[0], true, false), "La section "+ss[0]+" n'existe pas !");
 		String lastSection = "";
 		for(int j = 0; j < ss.length; j++){
 			if(j+1 == ss.length)

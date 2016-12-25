@@ -1,19 +1,17 @@
 package fr.alexandre1156.wardensrevolt.utils;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Random;
 
 import org.bukkit.craftbukkit.v1_11_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 
 import fr.alexandre1156.wardensrevolt.wizard.Wizard;
-import fr.alexandre1156.wardensrevolt.wizard.WizardElectro;
-import fr.alexandre1156.wardensrevolt.wizard.WizardGelato;
-import fr.alexandre1156.wardensrevolt.wizard.WizardInferno;
-import fr.alexandre1156.wardensrevolt.wizard.WizardOceany;
-import fr.alexandre1156.wardensrevolt.wizard.WizardTerrana;
 
 public class WizardUtils {
 	
@@ -33,25 +31,20 @@ public class WizardUtils {
 		return wizardList;
 	}
 	
-	public static void addWizard(Player p, WizardType wizardType){
-		switch(wizardType){
-		case ELECTRO:
-			wizardList.add(new WizardElectro((CraftPlayer) p));
-			break;
-		case GELATO:
-			wizardList.add(new WizardGelato((CraftPlayer) p));
-			break;
-		case INFERNO:
-			wizardList.add(new WizardInferno((CraftPlayer) p));
-			break;
-		case OCEANY:
-			wizardList.add(new WizardOceany((CraftPlayer) p));
-			break;
-		case TERRANA:
-			wizardList.add(new WizardTerrana((CraftPlayer) p));
-			break;
+	public static void addWizard(Player p, int wizardTypeID){
+		Iterator<Entry<Integer, Class<? extends Wizard>>> typeWizards = WizardRegistry.wizardTypes.entrySet().iterator();
+		while(typeWizards.hasNext()){
+			Entry<Integer, Class<? extends Wizard>> wizardType = typeWizards.next();
+			if(wizardType.getKey() == wizardTypeID){
+				try {
+					Constructor<? extends Wizard> wiz = wizardType.getValue().getConstructor(CraftPlayer.class);
+					wizardList.add(wiz.newInstance(((CraftPlayer) p)));
+				} catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+					e.printStackTrace();
+				}
+				break;
+			}
 		}
-		//wizardList.add(new Wizard((CraftPlayer) p, p.getName(), wizardType));
 	}
 	
 	public static void removeWizard(Player p){
@@ -62,6 +55,10 @@ public class WizardUtils {
 				wizards.remove();
 			}
 		}
+	}
+	
+	public static int randomID(){
+		return WizardRegistry.wizardTypes.size();
 	}
 	
 	public static boolean isAWizard(Player p){
@@ -85,28 +82,22 @@ public class WizardUtils {
 	}
 	
 	public static void assignRandomWizardType(Player p){
-		int type = r.nextInt(5);
-		switch(type){
-		case 0:
-			addWizard(p, WizardType.ELECTRO);
-			break;
-		case 1:
-			addWizard(p, WizardType.GELATO);
-			break;
-		case 2:
-			addWizard(p, WizardType.INFERNO);
-			break;
-		case 3:
-			addWizard(p, WizardType.OCEANY);
-			break;
-		case 4:
-			addWizard(p, WizardType.TERRANA);
-			break;
-		}
+		int types = r.nextInt(WizardRegistry.wizardTypes.size());
+		addWizard(p, types);
 	}
 	
 	public enum WizardType {
-		INFERNO, OCEANY, TERRANA, ELECTRO, GELATO 
+		INFERNO(2), OCEANY(3), TERRANA(6), ELECTRO(0), GELATO(1), SYSTERNO(4), TENEBRO(5);
+		
+		private int id;
+		
+		private WizardType(int ID){
+			this.id = ID;
+		}
+		
+		public int getID(){
+			return id;
+		}
 	}
 	
 }

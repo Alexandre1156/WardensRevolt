@@ -32,8 +32,8 @@ public class GameTimer extends Thread{
 					timerStarted = true;
 					WardenRevolt.getInstance().getScoreboard().updateValue(3, ChatColor.GREEN+"     "+secs+ChatColor.RESET+" Seconde(s)");
 					WardenRevolt.getInstance().getScoreboard().updateValue(4, ChatColor.GREEN+"     "+mins+ChatColor.RESET+" Minutes(s)");
-					WardenRevolt.getInstance().getScoreboard().addScore("Temps restant : ", 5);
-					WardenRevolt.getInstance().getScoreboard().addScore(ChatColor.RESET.toString()+ChatColor.RESET.toString()+ChatColor.RESET.toString()+ChatColor.RESET.toString(), 6);
+					WardenRevolt.getInstance().getScoreboard().addScore(5, "Temps restant : ");
+					WardenRevolt.getInstance().getScoreboard().addScore(6, ChatColor.RESET.toString()+ChatColor.RESET.toString()+ChatColor.RESET.toString()+ChatColor.RESET.toString());
 				}
 				WardenRevolt.getInstance().getScoreboard().updateValue(3, ChatColor.GREEN+"     "+secs+ChatColor.RESET+" Seconde(s)");
 				try {

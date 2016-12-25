@@ -2,57 +2,70 @@ package fr.alexandre1156.wardensrevolt.scheduler.stage;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Color;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.Sound;
+import org.bukkit.craftbukkit.v1_11_R1.CraftWorld;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Listener;
+import org.bukkit.entity.Villager.Profession;
+import org.bukkit.entity.WitherSkeleton;
+import org.bukkit.entity.ZombieVillager;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.plugin.Plugin;
-import org.bukkit.scheduler.BukkitTask;
+import org.bukkit.util.EulerAngle;
 
 import fr.alexandre1156.wardensrevolt.Stuff;
 import fr.alexandre1156.wardensrevolt.WardenRevolt;
 import fr.alexandre1156.wardensrevolt.config.ConfigList;
+import fr.alexandre1156.wardensrevolt.entity.WardenMobs;
+import fr.alexandre1156.wardensrevolt.entity.WardenWitch;
 import fr.alexandre1156.wardensrevolt.utils.Utils;
 import net.minecraft.server.v1_11_R1.EnumParticle;
 
-public class StageOne extends Stage implements Listener{
+public class StageOne extends Stage{
 	
 	private Location spawnLoc;
 	private static ArmorStand wardenPhaseOne;
 	private boolean isNameVisible;
 	private boolean isKilled;
-	private BukkitTask task;
-	//private boolean isActive;
+	private ItemStack sword;
+	private ItemStack axe;
+	private int count = 0;
 
 	public StageOne(Plugin plugin) {
 		super(plugin);
+		sword = new ItemStack(Material.GOLD_SWORD);
+		axe = new ItemStack(Material.GOLD_AXE);
 	}
-
-	private int count = 0;
 	
 	public void start(){
 		if(spawnLoc == null)
 			spawnLoc = new Location(ConfigList.world, ConfigList.spawn[0], ConfigList.spawn[1], ConfigList.spawn[2]);
-		for(Player p : Bukkit.getOnlinePlayers()){
+		for(Player p : Bukkit.getOnlinePlayers())
 			p.teleport(spawnLoc);
-			p.playSound(p.getLocation(), Sound.ENTITY_WITHER_SPAWN, 1, 0);
-		}
-		Bukkit.broadcastMessage(Stuff.WARDEN_TAG+" Alors comme ça on pense pouvoir me vaincre ? Et bien, "+ChatColor.YELLOW+""+ChatColor.BOLD+"trouvez moi avant !");
+		Utils.playSoundToAllPlayer(Sound.ENTITY_WITHER_SPAWN, 1, 0);
+		
+		for(Player p : Bukkit.getOnlinePlayers())
+			p.sendMessage(Stuff.WARDEN_STAGEONE_MESSAGE_START);
 		initWardenPhaseOne();
-		stageEngine();
+		this.updateMobsCountScoreboard();
 	}
 	
-	private void stageEngine(){
-		task = Bukkit.getScheduler().runTaskTimer(WardenRevolt.getInstance(), new Runnable(){
+	@Override
+	protected void stageEngine(){
+		//task = Bukkit.getScheduler().runTaskTimer(WardenRevolt.getInstance(), new Runnable(){
 
-			@Override
-			public void run() {
+			//@Override
+			//public void run() {
 				for(Player p : Bukkit.getOnlinePlayers()){
 					if(!isKilled){
 						//wardenPhaseOne.getWorld().spawnParticle(Particle.EXPLOSION_NORMAL, wardenPhaseOne.getLocation(), 1000, 10d, 0.1d, 10d);
-						Utils.spawnParticle(EnumParticle.EXPLOSION_NORMAL, true, wardenPhaseOne.getLocation(), 1f, 1.5f, 1f, 0.0001f, 100, null);
+						Utils.spawnParticle(EnumParticle.SMOKE_LARGE, true, wardenPhaseOne.getLocation(), 1f, 1.5f, 1f, 0.0001f, 100, null);
 						if(wardenPhaseOne.getLocation().distanceSquared(p.getLocation()) <= 5 * 5){
 							isNameVisible = true;
 							wardenPhaseOne.setCustomNameVisible(true);
@@ -63,14 +76,15 @@ public class StageOne extends Stage implements Listener{
 					} else
 						updateMobsCountScoreboard();
 				}
-			}
+			//}
 			
-		}, 0l, 10l);
+		//}, 0l, 10l);
 	}
 
 	@Override
-	protected void onPlayerHitWarden() {
+	protected void onPlayerHitWarden(Player p) {
 		count++;
+		Utils.playSoundToAllPlayer(Sound.ENTITY_WITHER_HURT, 1f, 0f);
 		switch(count){
 		case 1:
 			Utils.sendJsonMessageToAllPlayers(Stuff.WARDEN_STAGEONE_MESSAGE_ONE);
@@ -114,26 +128,24 @@ public class StageOne extends Stage implements Listener{
 			this.spawnBlinding();
 			this.spawnKiller();
 			
-	//		if(ConfigList.mobSpawnPosRand){
-	//			for(int i = 0; i < 40; i++)
-	//				Utils.spawnZombie(Utils.getMobRandomLocation());
-	//		} else {
-	//			for(int i = 0; i < 40; i++)
-	//				Utils.spawnZombie(Utils.getMobExistingLocation());
-	//		}
+			if(ConfigList.mobSpawnPosRand){
+				for(int i = 0; i < 40; i++)
+					Utils.spawnZombie(Utils.getMobRandomLocation());
+			} else {
+				for(int i = 0; i < 40; i++)
+					Utils.spawnZombie(Utils.getMobExistingLocation());
+			}
 			Bukkit.getScheduler().runTask(WardenRevolt.getInstance(), new Runnable() {
 				
 				@Override
 				public void run() {
 					updateMobsCountScoreboard();
-					wardenPhaseOne.remove();
+					wardenPhaseOne.setHealth(0.0D);
 					for(Entity ent : ConfigList.world.getEntities()){
-						Utils.consoleMessage(ent.getName());
 						if(ent.getCustomName() != null){
 							String customName = ent.getCustomName();
-							if(customName.equals(Stuff.ZOMBIE_TAG) || customName.equals(Stuff.BLINDING_TAG) || customName.equals(Stuff.KILLER_TAG) || customName.equals(Stuff.WIZARD_TAG))
+							if(Utils.isMobTagExist(customName))
 								ent.setInvulnerable(false);
-							Utils.consoleMessage(customName+" "+ent.isInvulnerable());
 						}
 					}
 				}
@@ -150,10 +162,10 @@ public class StageOne extends Stage implements Listener{
 			
 			@Override
 			public void run() {
-				WardenRevolt.getInstance().getScoreboard().updateValue(3, ChatColor.BLACK+"Aveuglants : "+Utils.getBlindingsNumber());
-				WardenRevolt.getInstance().getScoreboard().updateValue(4, ChatColor.DARK_GREEN+"Mages : "+Utils.getWizardsNumber());
-				WardenRevolt.getInstance().getScoreboard().updateValue(5, ChatColor.RED+"Tueurs : "+Utils.getKillersNumber());
-				WardenRevolt.getInstance().getScoreboard().updateValue(6, ChatColor.GREEN+"Zombies : "+Utils.getZombiesNumber());
+				WardenRevolt.getInstance().getScoreboard().updateValue(3, ChatColor.BLACK+"Aveuglants : "+getMobCountByID(WardenMobs.BLINDING.getId()));
+				WardenRevolt.getInstance().getScoreboard().updateValue(4, ChatColor.DARK_GREEN+"Mages : "+getMobCountByID(WardenMobs.WIZARD.getId()));
+				WardenRevolt.getInstance().getScoreboard().updateValue(5, ChatColor.RED+"Tueurs : "+getMobCountByID(WardenMobs.KILLER.getId()));
+				WardenRevolt.getInstance().getScoreboard().updateValue(6, ChatColor.GREEN+"Zombies : "+getMobCountByID(WardenMobs.ZOMBIE.getId()));
 			}
 		}, 20L);
 	}
@@ -169,20 +181,51 @@ public class StageOne extends Stage implements Listener{
 					wardenPhaseOne = (ArmorStand) world.spawn(
 							Utils.getWardenExistingLocation(), 
 							ArmorStand.class);
+				
+				ItemStack boots = new ItemStack(Material.LEATHER_BOOTS);
+				LeatherArmorMeta lam = (LeatherArmorMeta) boots.getItemMeta();
+				lam.setColor(Color.BLACK);
+				boots.setItemMeta(lam);
+				ItemStack chestPlate = new ItemStack(Material.LEATHER_CHESTPLATE);
+				chestPlate.setItemMeta(lam);
+				ItemStack leggings = new ItemStack(Material.LEATHER_LEGGINGS);
+				leggings.setItemMeta(lam);
+				ItemStack helmet = new ItemStack(Material.LEATHER_HELMET);
+				helmet.setItemMeta(lam);
+				ItemStack sword = new ItemStack(Material.DIAMOND_SWORD);
+				sword.addEnchantment(Enchantment.DAMAGE_ALL, 1);
+				
 				wardenPhaseOne.setInvulnerable(true);
 				wardenPhaseOne.setGravity(false);
-				wardenPhaseOne.setCustomName(ChatColor.RED+"Warden");
+				wardenPhaseOne.setCustomName(Stuff.WARDEN_TAG);
 				wardenPhaseOne.setCustomNameVisible(false);
-				//wardenPhaseOne.setVisible(false);
+				wardenPhaseOne.setBasePlate(false);
+				wardenPhaseOne.setArms(true);
+				wardenPhaseOne.setBoots(boots);
+				wardenPhaseOne.setChestplate(chestPlate);
+				wardenPhaseOne.setLeggings(leggings);
+				wardenPhaseOne.setHelmet(helmet);
+				wardenPhaseOne.setItemInHand(sword);
+				wardenPhaseOne.setHeadPose(new EulerAngle(32f, 0f, 0f));
 			}
 		});
 	}
 
 	@Override
 	protected void onAllMonstersDie() {
-		task.cancel();
-		Utils.sendJsonMessageToAllPlayers(Stuff.WARDEN_STAGEONE_MESSAGE_FINAL);
-		WardenRevolt.getInstance().nextStage(WardenStage.STAGE_TWO, this);
+		if(count == 5){
+			Utils.sendJsonMessageToAllPlayers(Stuff.WARDEN_STAGEONE_MESSAGE_FINAL);
+			this.updateMobsCountScoreboard();
+			//this.isActive = false;
+			Bukkit.getScheduler().runTaskLater(WardenRevolt.getInstance(), new Runnable(){
+	
+				@Override
+				public void run() {
+					WardenRevolt.getInstance().nextStage(WardenStage.STAGE_TWO.getID(), this);
+				}
+				
+			}, 100);
+		}
 	}
 	
 	private void teleportWarden(){
@@ -194,29 +237,124 @@ public class StageOne extends Stage implements Listener{
 	
 	private void spawnKiller(){
 		if(ConfigList.mobSpawnPosRand)
-			Utils.spawnKiller(Utils.getMobRandomLocation());
+			this.spawnKiller(Utils.getMobRandomLocation());
 		else 
-			Utils.spawnKiller(Utils.getMobExistingLocation());
+			this.spawnKiller(Utils.getMobExistingLocation());
 	}
 	
 	private void spawnBlinding(){
 		if(ConfigList.mobSpawnPosRand)
-			Utils.spawnBlinding(Utils.getMobRandomLocation());
+			this.spawnBlinding(Utils.getMobRandomLocation());
 		else 
-			Utils.spawnBlinding(Utils.getMobExistingLocation());
+			this.spawnBlinding(Utils.getMobExistingLocation());
 	}
 	
 	private void spawnWizard(){
 		if(ConfigList.mobSpawnPosRand)
-			Utils.spawnWizard(Utils.getMobRandomLocation());
+			this.spawnWizard(Utils.getMobRandomLocation());
 		 else 
-			Utils.spawnWizard(Utils.getMobExistingLocation());
+			 this.spawnWizard(Utils.getMobExistingLocation());
 	}
 
 	@Override
 	protected void onAnEntityDie(Entity entityDeath) {
 		//Nothing to do
 	}
+	
+	/**
+	 * Fait spawn un Aveuglant.
+	 */
+	public void spawnBlinding(Location loc){
+		Bukkit.getScheduler().runTask(WardenRevolt.getInstance(), new Runnable() {
+			
+			@Override
+			public void run() {
+				WitherSkeleton ent = loc.getWorld().spawn(loc, WitherSkeleton.class);
+				ent.setInvulnerable(true);
+				ent.setCustomName(Stuff.BLINDING_TAG);
+				ent.getEquipment().setItemInMainHand(sword);
+				ent.addPotionEffect(Utils.speed);
+			}
+		});
+	}
+	
+	/**
+	 * Fait spawn un Mage.
+	 */
+	public void spawnWizard(Location loc){
+		Bukkit.getScheduler().runTask(WardenRevolt.getInstance(), new Runnable() {
+			
+			@Override
+			public void run() {
+				WardenWitch witch = new WardenWitch(((CraftWorld) loc.getWorld()).getHandle());
+				witch.setCustomName(Stuff.WIZARD_TAG);
+				witch.setInvulnerable(true);
+				//((LivingEntity) witch).addPotionEffect(speed); --> Ce n'est pas une LivingEntity !
+				Utils.spawnEntity(witch, loc);
+			}
+		});
+	}
+	
+	/**
+	 * Fait spawn un Tueur.
+	 */
+	public void spawnKiller(Location loc){
+		Bukkit.getScheduler().runTask(WardenRevolt.getInstance(), new Runnable() {
+			
+			@Override
+			public void run() {
+				ZombieVillager ent = loc.getWorld().spawn(loc, ZombieVillager.class);
+				ent.setInvulnerable(true);
+				ent.setCustomName(Stuff.KILLER_TAG);
+				ent.getEquipment().clear();
+				ent.getEquipment().setItemInMainHand(axe);
+				ent.setBaby(false);
+				ent.setVillagerProfession(Profession.BLACKSMITH);
+				ent.addPotionEffect(Utils.speed);
+			}
+		});
+	}
+
+	@Override
+	public int getStageID() {
+		return WardenStage.STAGE_ONE.getID();
+	}
+	
+//	private int getKillersNumber(){
+//		int i = 0;
+//		for(ZombieVillager ent : Bukkit.getWorlds().get(0).getEntitiesByClass(ZombieVillager.class)){
+//			if(ent.getCustomName() != null && ent.getCustomName().equals(Stuff.KILLER_TAG))
+//				i++;
+//		}
+//		return i;
+//	}
+//	
+//	private int getBlindingsNumber(){
+//		int i = 0;
+//		for(WitherSkeleton ent : Bukkit.getWorlds().get(0).getEntitiesByClass(WitherSkeleton.class)){
+//			if(ent.getCustomName() != null && ent.getCustomName().equals(Stuff.BLINDING_TAG))
+//				i++;
+//		}
+//		return i;
+//	}
+//	
+//	private int getWizardsNumber(){
+//		int i = 0;
+//		for(Entity ent : Bukkit.getWorlds().get(0).getEntities()){
+//			if(ent.getCustomName() != null && ent.getCustomName().equals(Stuff.WIZARD_TAG))
+//				i++;
+//		}
+//		return i;
+//	}
+//	
+//	private int getZombiesNumber() {
+//		int i = 0;
+//		for(Zombie ent : Bukkit.getWorlds().get(0).getEntitiesByClass(Zombie.class)){
+//			if(ent.getCustomName() != null && ent.getCustomName().equals(Stuff.ZOMBIE_TAG))
+//				i++;
+//		}
+//		return i;
+//	}
 
 	
 	

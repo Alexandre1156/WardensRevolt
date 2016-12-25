@@ -1,113 +1,143 @@
 package fr.alexandre1156.wardensrevolt.wizard;
 
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 
 import org.bukkit.ChatColor;
 import org.bukkit.DyeColor;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.craftbukkit.v1_11_R1.entity.CraftPlayer;
-import org.bukkit.enchantments.Enchantment;
-import org.bukkit.inventory.ItemFlag;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.material.Wool;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
 import fr.alexandre1156.wardensrevolt.Stuff;
-import fr.alexandre1156.wardensrevolt.event.custom.ItemCooldownFinishEvent;
+import fr.alexandre1156.wardensrevolt.config.ConfigList;
+import fr.alexandre1156.wardensrevolt.utils.ItemCreator;
+import fr.alexandre1156.wardensrevolt.utils.Utils;
 import fr.alexandre1156.wardensrevolt.utils.WizardUtils.WizardType;
+import net.minecraft.server.v1_11_R1.EnumParticle;
 
 public class WizardElectro extends Wizard{
 	
 	private PotionEffect speedEffect;
 
 	public WizardElectro(CraftPlayer cp) {
-		super(cp, WizardType.ELECTRO);
-		speedEffect = new PotionEffect(PotionEffectType.SPEED, 5, 4);
+		super(cp);
+		speedEffect = new PotionEffect(PotionEffectType.SPEED, 100, 4);
+		inventoryItem = ItemCreator.createItem(Material.NETHER_STAR)
+				.setCustomName(ChatColor.YELLOW+"Electro")
+				.addLineLore(ChatColor.GRAY+""+ChatColor.ITALIC+"Le mage du tonnerre")
+				.addLineLore(ChatColor.DARK_RED+""+ChatColor.BOLD+"Tempête "+ChatColor.RESET+""+ChatColor.WHITE+">"+ChatColor.RESET+
+						""+ChatColor.GREEN+" 15 secs de recharge")
+				.addLineLore(ChatColor.DARK_RED+""+ChatColor.BOLD+"Éclair "+ChatColor.RESET+""+ChatColor.WHITE+">"+ChatColor.RESET+
+						""+ChatColor.GREEN+" 5 secs de recharge")
+				.addLineLore(ChatColor.DARK_RED+""+ChatColor.BOLD+"Sprint "+ChatColor.RESET+""+ChatColor.WHITE+">"+ChatColor.RESET+
+						""+ChatColor.GREEN+" 20 secs de recharge")
+				.build();
+		inventoryItemPosition = 13;
 	}
 
-	@SuppressWarnings("static-access")
-	@Override
-	public void consumneKitItem(int itemPos) {
-		this.getInventory().getItem(itemPos).removeEnchantment(Enchantment.ARROW_DAMAGE);
-		switch(itemPos){
-		case 1:
-			if(!itemCooldown.isItemHasCooldown(getUniqueId(), this.getInventory().getItem(1)))
-				this.itemCooldown.addItemCooldown(getUniqueId(), this.getInventory().getItem(1), 15);
-			else
-				this.sendMessage(Stuff.PLUGIN_TAG+ChatColor.YELLOW+"Attends encore "+itemCooldown.getCooldownLeft(getUniqueId(), this.getInventory().getItem(1))+" seconde(s) !");
-			this.useFirstSpell();
-			break;
-		case 2:
-			if(!itemCooldown.isItemHasCooldown(getUniqueId(), this.getInventory().getItem(2)))
-				this.itemCooldown.addItemCooldown(getUniqueId(), this.getInventory().getItem(2), 5);
-			else
-				this.sendMessage(Stuff.PLUGIN_TAG+ChatColor.YELLOW+"Attends encore "+itemCooldown.getCooldownLeft(getUniqueId(), this.getInventory().getItem(2))+" seconde(s) !");
-			this.useSecondSpell();
-			break;
-		case 3:
-			if(!itemCooldown.isItemHasCooldown(getUniqueId(), this.getInventory().getItem(3)))
-				this.itemCooldown.addItemCooldown(getUniqueId(), this.getInventory().getItem(3), 20);
-			else
-				this.sendMessage(Stuff.PLUGIN_TAG+ChatColor.YELLOW+"Attends encore "+itemCooldown.getCooldownLeft(getUniqueId(), this.getInventory().getItem(3))+" seconde(s) !");
-			this.useThirdSpell();
-			break;
-		}
-	}
-
+	@SuppressWarnings("deprecation")
 	@Override
 	public void giveKitItems() {
 		Wool wool = new Wool(DyeColor.YELLOW);
-		ItemStack storm = wool.toItemStack(1);
-		ItemMeta stormMeta = storm.getItemMeta();
-		stormMeta.setDisplayName(ChatColor.YELLOW+"Tempête");
-		stormMeta.setLore(Arrays.asList(new String[] {ChatColor.WHITE+"Fais tomber deux éclairs sur deux monstres au hasard ", ChatColor.RED+"Dégats : 4 Coeurs", ChatColor.GRAY+"Temps de recharge : 15 secs"}));
-		stormMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-		storm.setItemMeta(stormMeta);
-		storm.addUnsafeEnchantment(Enchantment.ARROW_DAMAGE, 1);
+		spellItemOne = SpellItemCreator.createItem(wool.getItemType(), wool.getData())
+				.setCustomName(ChatColor.YELLOW+"Tempête")
+				.addDescription("Fais tomber deux éclairs sur deux monstres au hasard ")
+				.addDamage(4)
+				.setCooldown(15)
+				.build();
+		spellItemTwo = SpellItemCreator.createItem(Material.DOUBLE_PLANT)
+				.setCustomName(ChatColor.YELLOW+""+ChatColor.BOLD+"Eclair")
+				.addDescription("Fais tomber un éclair sur le monstre")
+				.addDescription("touché par le rayon que vous lancez")
+				.addDamage(2)
+				.setCooldown(5)
+				.build();
+		spellItemThree = SpellItemCreator.createItem(Material.FEATHER)
+				.setCustomName(ChatColor.BLUE+"Sprint")
+				.addDescription("Vous donne du Speed 5")
+				.addDuration(5)
+				.setCooldown(20)
+				.build();
 		
-		ItemStack thunderBolt = new ItemStack(Material.DOUBLE_PLANT);
-		ItemMeta boltMeta = thunderBolt.getItemMeta();
-		boltMeta.setDisplayName(ChatColor.YELLOW+""+ChatColor.BOLD+"Eclair");
-		boltMeta.setLore(Arrays.asList(new String[] {ChatColor.WHITE+"Fais tomber un éclair sur le monstre", ChatColor.WHITE+"touché par le rayon que vous lancez", ChatColor.RED+"Dégats : 2 Coeurs", ChatColor.GRAY+"Temps de recharge : 5 secs"}));
-		boltMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-		thunderBolt.setItemMeta(boltMeta);
-		thunderBolt.addUnsafeEnchantment(Enchantment.ARROW_DAMAGE, 1);
-		
-		ItemStack speed = new ItemStack(Material.FEATHER);
-		ItemMeta speedMeta = speed.getItemMeta();
-		speedMeta.setDisplayName(ChatColor.BLUE+"Sprint");
-		speedMeta.setLore(Arrays.asList(new String[] {ChatColor.BLUE+"Vous donne du Speed 5", ChatColor.GREEN+"Durée : 5 secs", ChatColor.GRAY+"Temps de recharge : 20 secs"}));
-		speedMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-		speed.setItemMeta(speedMeta);
-		speed.addUnsafeEnchantment(Enchantment.ARROW_DAMAGE, 1);
-		
-		this.getInventory().setItem(1, storm);
-		this.getInventory().setItem(2, thunderBolt);
-		this.getInventory().setItem(3, speed);
-	}
-
-	@Override
-	protected void onItemCooldownFinish(ItemCooldownFinishEvent e) {
-		if(e.getUuid().equals(this.getUniqueId())){
-			e.getItem().addUnsafeEnchantment(Enchantment.ARROW_DAMAGE, 1);
-		}
+		super.giveKitItems();
 	}
 
 	@Override
 	protected void useFirstSpell() {
-		
+		ArrayList<LivingEntity> ents = new ArrayList<>();
+		for(LivingEntity ent : ConfigList.world.getLivingEntities()){
+			if(ent.getCustomName() != null){
+				if(Utils.isMobTagExist(ent.getCustomName()))
+					ents.add(ent);
+			}
+		}
+		if(!ents.isEmpty()){
+			int firstVictim = random.nextInt(ents.size());
+			if(ents.size() >= 2){
+				int secondVictim = random.nextInt(ents.size());
+				while(secondVictim == firstVictim)
+					secondVictim = random.nextInt(ents.size());
+				ents.get(secondVictim).damage(8);
+				ConfigList.world.strikeLightningEffect(ents.get(secondVictim).getLocation());
+			}
+			ents.get(firstVictim).damage(8);
+			ConfigList.world.strikeLightningEffect(ents.get(firstVictim).getLocation());
+		} else {
+			this.sendMessage(Stuff.PLUGIN_TAG+ChatColor.YELLOW+" Il n'y a aucun ennemis à toucher !");
+		}
 	}
 
 	@Override
 	protected void useSecondSpell() {
-		
+		List<Block> blocks = this.getLineOfSight((Set<Material>)null, 100);
+		//Utils.consoleMessage(blocks.size()+" $");
+		Iterator<Block> iter = blocks.iterator();
+		loop: {
+			while(iter.hasNext()){
+				Block block = iter.next();
+				if(block.isEmpty()){
+					Utils.spawnParticle(EnumParticle.BLOCK_DUST, true, block.getLocation(), 0.1f, 0.1f, 0.1f, 0.1f, 10, null, 41);
+					for(Entity ent : ConfigList.world.getNearbyEntities(block.getLocation(), 1, 1, 1)){
+						if(ent.getCustomName() != null){
+							if(Utils.isMobTagExist(ent.getCustomName())){
+								if(ent instanceof LivingEntity){
+									((LivingEntity) ent).damage(4);
+									ConfigList.world.strikeLightningEffect(((LivingEntity) ent).getLocation());
+								}
+								break loop;
+							}
+						}
+					}
+				} else {
+					this.sendMessage(Stuff.PLUGIN_TAG+ChatColor.YELLOW+" Aucune cible !");
+					break loop;
+				}
+			}
+			this.sendMessage(Stuff.PLUGIN_TAG+ChatColor.YELLOW+" Aucune cible !");
+		}
 	}
 
 	@Override
 	protected void useThirdSpell() {
 		this.addPotionEffect(speedEffect);
+	}
+	
+	@Override
+	public int getWizardTypeID() {
+		return 0;
+	}
+
+	@Override
+	public WizardType getWizardType() {
+		return WizardType.ELECTRO;
 	}
 
 }

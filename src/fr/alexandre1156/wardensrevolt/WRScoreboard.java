@@ -39,7 +39,7 @@ public class WRScoreboard {
 		newScores = Maps.newHashMap();
 	}
 	
-	public void addScore(String textToDisplay, int theScore){
+	public void addScore(int theScore, String textToDisplay){
 		this.newScores.put(theScore, this.obj.getScore(textToDisplay));
 		((Score)this.newScores.get(theScore)).setScore(theScore);
 	}
@@ -62,5 +62,7 @@ public class WRScoreboard {
 		this.newScores.replace(position, this.obj.getScore(value));
 		((Score)this.newScores.get(position)).setScore(position);
 	}
+	
+	
 	
 }

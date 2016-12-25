@@ -1,6 +1,7 @@
 package fr.alexandre1156.wardensrevolt.scheduler;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.UUID;
 
@@ -27,12 +28,17 @@ public class ItemCooldown {
 			@Override
 			public void run() {
 				if(!cooldowns.isEmpty()){
-					for(Entry<UUID, HashMap<ItemStack, Integer>> entries : cooldowns.entrySet()){
+					Iterator<Entry<UUID, HashMap<ItemStack, Integer>>> iter = cooldowns.entrySet().iterator();
+					while(iter.hasNext()){
+						Entry<UUID, HashMap<ItemStack, Integer>> entries = iter.next();
 						if(entries.getValue() != null){
-							for(Entry<ItemStack, Integer> entries2 : entries.getValue().entrySet()){
+							Iterator<Entry<ItemStack, Integer>> iter2 = entries.getValue().entrySet().iterator();
+							while(iter2.hasNext()){
+								Entry<ItemStack, Integer> entries2 = iter2.next();
 								entries2.setValue(entries2.getValue().intValue()-1);
 								if(entries2.getValue() == 0){
-									entries.getValue().remove(entries2.getKey());
+									iter2.remove();
+									//entries.getValue().remove(entries2.getKey());
 									Bukkit.getPluginManager().callEvent(new ItemCooldownFinishEvent(entries.getKey(), entries2.getKey()));
 								}
 							}

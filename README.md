@@ -3,30 +3,22 @@ Creation du mini-jeu Warden's Revolt par PetiteSicila (https://forum.epicube.fr/
 
 ### TO-DO
 
--Faire les pouvoirs des differents sorcier (1/15);
+-Faire les sorciers (3/7);
 
 -Faire le système de mort;
+
+-Faire les systèmes de fin (mauvaise ou bonne).
 
 _-Faire une map ?_
 
 -Faire les 5 stages :
 
 ---Stage 1 [Le cache-cache]:
-
-------(3/3) mobs créés (le Mage bug),
-
-------(5/5) vagues créés,
-
-------Les cachettes de warden peuvent être aléatoire ou définis.
-
+------Fait !
 ---Stage 2 [Combat contre l'amée cheat] :
-
-------Juste la base.
-
+------Fait !
 ---Stage 3 [Combat contre Warden] :
-
-------Non commencé.
-
+------Fait !
 ---Stage 4 [Les admninistrateurs] :
 
 ------Non commencé.
